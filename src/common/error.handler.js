@@ -1,5 +1,5 @@
-const { Logger } = require("./winston");
-const errorCode = require("./errorCode");
+const { Logger } = require('./winston');
+const errorCode = require('./errorCode');
 
 const log = new Logger(__filename);
 
@@ -21,7 +21,7 @@ exports.InterserviceErrorResponse = (errorResponse, res) => {
 
 exports.sendForbiddenResponse = (res, req) => {
   res.api.success = false;
-  res.api.error.message = "Access Denied";
+  res.api.error.message = 'Access Denied';
   res.api.error.code = errorCode.FORBIDDEN;
   res.api.error.details = [];
   res.api.statusCode = 403;

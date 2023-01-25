@@ -1,14 +1,15 @@
-const winston = require("winston");
-const zipkin = require("zipkin");
-const CLSContext = require("zipkin-context-cls");
+const zipkin = require('zipkin');
+const CLSContext = require('zipkin-context-cls');
+const { basename } = require('path');
 
 const ctxImpl = new CLSContext(); // if you want to use CLS(continuation-local-storage)
-const config = require("../config");
 
-let requestIp;
-let originalUrl;
-let method;
-let userId;
+const { format, createLogger, transports } = require('winston');
+const config = require('../config');
+
+const { combine, timestamp, printf } = format;
+const { Console } = transports;
+
 let fileName;
 
 const tracer = new zipkin.Tracer({
@@ -16,7 +17,34 @@ const tracer = new zipkin.Tracer({
   recorder: new zipkin.ConsoleRecorder(), // For easy debugging.
   sampler: new zipkin.sampler.CountingSampler(0.01), // sample rate 0.01 will sample 1 % of all incoming requests
   traceId128Bit: true, // to generate 128-bit trace IDs. 64-bit (false) is default
-  localServiceName: config.appname, // name of this application //config.appname
+  localServiceName: config.appName, // name of this application //config.appName
+});
+
+const errorStackTracerFormat = format(info => {
+  const updateInfo = info;
+  if (info.meta && info.meta instanceof Error) {
+    updateInfo.message = `${info.message} ${info.meta.stack}`;
+  }
+  return updateInfo;
+});
+
+const winstonLog = createLogger({
+  format: combine(
+    format.splat(),
+    timestamp({ format: 'HH:mm:ss:ms' }),
+    errorStackTracerFormat(),
+    printf(info => {
+      const out = {
+        level: info.level,
+        time: info.timestamp,
+        message: info.message,
+        traceId: `${tracer.id.traceId}'`,
+        file: `${basename(fileName)}'`,
+      };
+      return JSON.stringify(out);
+    }),
+  ),
+  transports: [new Console({ level: 'debug' })],
 });
 
 class Logger {
@@ -24,62 +52,25 @@ class Logger {
     this.path = path;
   }
 
-  error(message, request) {
-    if (request) {
-      extractReqInfo(request);
-    }
+  error(message, error) {
     fileName = this.path;
-    winstonLog.error(message);
+    winstonLog.error(message, error);
   }
 
-  info(message, request) {
-    if (request) {
-      extractReqInfo(request);
-    }
+  info(message) {
     fileName = this.path;
     winstonLog.info(message);
   }
 
-  debug(message, request) {
-    if (request) {
-      extractReqInfo(request);
-    }
+  debug(message) {
     fileName = this.path;
     winstonLog.debug(message);
   }
 
-  warn(message, request) {
-    if (request) {
-      extractReqInfo(request);
-    }
+  warn(message) {
     fileName = this.path;
     winstonLog.warn(message);
   }
 }
-
-const winstonLog = winston.createLogger({
-  format: winston.format.combine(
-    winston.format.timestamp({ format: "HH:mm:ss:ms" }),
-    winston.format.printf((info) => {
-      const out = `${info.timestamp} ${fileName} ${info.level}  ${info.message} ${userId} ${requestIp} ${originalUrl} ${method} ${tracer._sentinelTraceId.traceId}:${tracer._sentinelTraceId.spanId}:${tracer._sentinelTraceId.parentSpanId}`;
-      console.log("----------LOG_LEVEL---------", config.log.level);
-      if (config.log.level && config.log.level.includes(info.level)) {
-        return out;
-      }
-    })
-  ),
-  transports: [new winston.transports.Console({ level: "debug" })],
-});
-
-const extractReqInfo = async (request) => {
-  requestIp = (request.headers["x-forwarded-for"] || "127.0.0.1").split(",", 1);
-  originalUrl = request.originalUrl;
-  method = request.method;
-  if (request.headers.authorization) {
-    userId = request.headers.requestMeta
-      ? request.headers.requestMeta.user_id
-      : null;
-  }
-};
 
 exports.Logger = Logger;

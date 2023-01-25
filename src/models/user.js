@@ -1,5 +1,7 @@
 module.exports = function (sequelize, Sequelize) {
-  const userSchema = sequelize.define("users", {
+  const userSchema = sequelize.define(
+    'users',
+    {
       id: {
         autoIncrement: true,
         primaryKey: true,
@@ -18,15 +20,15 @@ module.exports = function (sequelize, Sequelize) {
         allowNull: true,
       },
       createdAt: {
-        field: "created_at",
+        field: 'created_at',
         type: Sequelize.DATE,
       },
       updatedAt: {
-        field: "updated_at",
+        field: 'updated_at',
         type: Sequelize.DATE,
       },
     },
-    { underscored: true }
+    { underscored: true },
   );
 
   return userSchema;

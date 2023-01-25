@@ -6,4 +6,4 @@ exports.sendSuccessResponse = (result, res) => {
   res.status(res.api.statusCode);
 
   return res.send(res.api);
-}
+};

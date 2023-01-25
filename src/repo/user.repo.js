@@ -1,7 +1,6 @@
-const usersModel = require("../models").users;
+const usersModel = require('../models').users;
 
-exports.listUsers = async () => {
-  return usersModel.findAll({
+exports.listUsers = async () =>
+  usersModel.findAll({
     raw: true,
   });
-};

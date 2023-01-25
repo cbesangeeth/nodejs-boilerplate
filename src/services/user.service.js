@@ -1,10 +1,11 @@
-const userRepo = require("../repo/user.repo");
-const { validateGetUsersList } = require("../validation/user.validation");
-const responseHandler = require("../common/success.handler");
+const userRepo = require('../repo/user.repo');
+const errorCode = require('../common/errorCode');
+const { validateGetUsersList } = require('../validation/user.validation');
+const responseHandler = require('../common/success.handler');
+const { sendErrorResponse } = require('../common/error.handler');
 
 exports.getUsers = async (req, res, next) => {
   try {
-
     // validation
     const errors = validateGetUsersList(req);
 
@@ -13,17 +14,17 @@ exports.getUsers = async (req, res, next) => {
       const errObj = {
         statusCode: 400,
         code: errorCode.BAD_REQUEST,
-        message: "Invalid input",
+        message: 'Invalid input',
         details: errors,
       };
 
-      return errorhandler.sendErrorResponse(errObj, res);
+      return sendErrorResponse(errObj, res);
     }
 
     // repo call
     const usersData = await userRepo.listUsers();
 
-    //return
+    // return
     const resObj = {
       statusCode: 200,
       body: {
@@ -32,8 +33,7 @@ exports.getUsers = async (req, res, next) => {
     };
 
     return responseHandler.sendSuccessResponse(resObj, res);
-
   } catch (err) {
     return next(err);
   }
-}
+};
