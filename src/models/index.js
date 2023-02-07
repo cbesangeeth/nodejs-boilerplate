@@ -45,7 +45,9 @@ try {
     })
     .catch(error => {
       log.error('Unable to connect to the database: ', error);
+      throw error;
     });
 } catch (error) {
   console.log(`Connection to DB failed & error is :: ${error}`);
+  throw error;
 }

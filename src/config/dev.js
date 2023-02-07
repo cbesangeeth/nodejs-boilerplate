@@ -1,6 +1,7 @@
 module.exports = {
-  server: {
+  api: {
     port: '8009',
+    host: 'localhost',
   },
   db: {
     user: 'root',

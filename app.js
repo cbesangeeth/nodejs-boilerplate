@@ -8,9 +8,6 @@ const config = require('./src/config');
 const app = express();
 
 async function init() {
-  // to add unique-ids to requests
-  // app.use(addReqId());
-
   // set config
   app.set('config', config);
 
@@ -44,13 +41,11 @@ async function init() {
   // Attach routes
   require('./src/controllers/routes')(app);
 
-  app.listen(8008, 'localhost');
   log.info('running...');
-  // app.listen(app.get('config').api.port, app.get('config').api.host);
+  app.listen(app.get('config').api.port, app.get('config').api.host);
 }
 
-// module.exports = app;
 init().catch(err => {
-  log.error(err);
+  console.log(err);
   process.exit(1);
 });
