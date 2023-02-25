@@ -1,7 +1,7 @@
 const _ = require('lodash');
 
 const config = {
-  appName: 'snapshot-notification-service',
+  appName: 'radical-service',
   env: process.env.ENV || 'dev',
   db: {},
 };

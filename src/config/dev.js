@@ -6,7 +6,7 @@ module.exports = {
   db: {
     user: 'root',
     password: 'root',
-    database: 'snapshot-notification',
+    database: 'radical',
     host: 'localhost',
     port: '3306',
     driver: 'mysql',

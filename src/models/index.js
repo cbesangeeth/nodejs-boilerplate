@@ -5,6 +5,7 @@ const config = require('../config/index');
 const { Logger } = require('../common/winston');
 
 const log = new Logger(__filename);
+const db = {};
 
 try {
   const sequelize = new Sequelize(
@@ -14,7 +15,6 @@ try {
     config.db,
   );
 
-  const db = {};
 
   fs.readdirSync(__dirname)
     .filter(file => file.indexOf('.') !== 0 && file !== 'index.js')
@@ -41,7 +41,6 @@ try {
       log.info('Connection has been established successfully.');
 
       db.sequelize = sequelize;
-      module.exports = db;
     })
     .catch(error => {
       log.error('Unable to connect to the database: ', error);
@@ -51,3 +50,5 @@ try {
   console.log(`Connection to DB failed & error is :: ${error}`);
   throw error;
 }
+
+module.exports = db;
