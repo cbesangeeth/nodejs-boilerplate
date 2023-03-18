@@ -3,12 +3,12 @@ const errorCode = require('./errorCode');
 
 const log = new Logger(__filename);
 
-exports.sendErrorResponse = (result, res) => {
+exports.sendErrorResponse = (error, res) => {
   res.api.success = false;
-  res.api.error.code = result.code;
-  res.api.error.message = result.message;
-  res.api.error.details = result.details;
-  res.api.statusCode = result.statusCode;
+  res.api.error.code = error.code;
+  res.api.error.message = error.message;
+  res.api.error.details = error.details;
+  res.api.statusCode = error.statusCode;
   res.status(res.api.statusCode);
 
   res.json(res.api);
